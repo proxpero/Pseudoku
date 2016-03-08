@@ -114,10 +114,11 @@ public func solve(puzzle: String) -> Grid? {
     }
     
     // Deduce the remaining digits.
-    guard let result = search(grid) else { return nil }
+    if let result = search(grid) {
+        return result
+    }
     
-    return result
-    
+    return nil
 }
 
 public func search(searchStore: Grid?) -> Grid? {
@@ -137,8 +138,11 @@ public func search(searchStore: Grid?) -> Grid? {
     // Try the possible digits to see if there are any inconsistencies.
     if candidate != nil {
         for digit in candidate!.digits {
-            guard let newStore = search(assign(digit, toSquare: candidate!.square, inGrid: grid)) else { continue }
-            return newStore
+            if let newStore = search(assign(digit, toSquare: candidate!.square, inGrid: grid)) {
+                return newStore
+            } else {
+                continue
+            }
         }
     }
     
@@ -152,8 +156,11 @@ public func assign(digit: Digit, toSquare square: Square, inGrid incoming: Grid)
     // When a digit is assigned, remove that digit from the square's possiblities.
     let others = grid[square]!.subtract([digit])
     for other in others {
-        guard let newStore = eliminate(other, fromSquare: square, inStore: grid) else { return nil }
-        grid = newStore
+        if let newStore = eliminate(other, fromSquare: square, inStore: grid) {
+            grid = newStore
+        } else {
+            return nil
+        }
     }
     
     return grid
@@ -181,8 +188,11 @@ public func eliminate(digit: Digit, fromSquare square: Square, inStore incoming:
         
         let newDigit = grid[square]!.first!
         for sq in peers[square]! {
-            guard let newStore = eliminate(newDigit, fromSquare: sq, inStore: grid) else { return nil }
-            grid = newStore
+            if let newStore = eliminate(newDigit, fromSquare: sq, inStore: grid) {
+                grid = newStore
+            } else {
+                return nil
+            }
         }
     }
     
@@ -193,8 +203,11 @@ public func eliminate(digit: Digit, fromSquare square: Square, inStore incoming:
         let places = unit.filter { grid[$0]!.contains(digit) }
         // if only one square in the unit is able to place the digit, assign the digit to that square.
         if places.count == 1 {
-            guard let newStore = assign(digit, toSquare: places.first!, inGrid: grid) else { return nil }
-            grid = newStore
+            if let newStore = assign(digit, toSquare: places.first!, inGrid: grid) {
+                grid = newStore
+            } else {
+                return nil
+            }
         }
     }
     
