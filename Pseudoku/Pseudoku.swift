@@ -109,7 +109,7 @@ public func solve(puzzle: String) -> Grid? {
     // Make assignments given by the puzzle.
     for (index, candidate) in refined.enumerate() {
         if nums.contains(candidate) {
-            grid = assign(candidate, toSquare: squares[index], inStore: grid!)
+            grid = assign(candidate, toSquare: squares[index], inGrid: grid!)
         }
     }
     
@@ -137,7 +137,7 @@ public func search(searchStore: Grid?) -> Grid? {
     // Try the possible digits to see if there are any inconsistencies.
     if candidate != nil {
         for digit in candidate!.digits {
-            guard let newStore = search(assign(digit, toSquare: candidate!.square, inStore: grid)) else { continue }
+            guard let newStore = search(assign(digit, toSquare: candidate!.square, inGrid: grid)) else { continue }
             return newStore
         }
     }
@@ -145,7 +145,7 @@ public func search(searchStore: Grid?) -> Grid? {
     return nil
 }
 
-public func assign(digit: Digit, toSquare square: Square, inStore incoming: Grid) -> Grid? {
+public func assign(digit: Digit, toSquare square: Square, inGrid incoming: Grid) -> Grid? {
     
     var grid = incoming
     
@@ -193,7 +193,7 @@ public func eliminate(digit: Digit, fromSquare square: Square, inStore incoming:
         let places = unit.filter { grid[$0]!.contains(digit) }
         // if only one square in the unit is able to place the digit, assign the digit to that square.
         if places.count == 1 {
-            guard let newStore = assign(digit, toSquare: places.first!, inStore: grid) else { return nil }
+            guard let newStore = assign(digit, toSquare: places.first!, inGrid: grid) else { return nil }
             grid = newStore
         }
     }
