@@ -47,14 +47,23 @@ class PseudokuTests: XCTestCase {
         XCTAssertEqual(peers["C2"], p)
         
     }
-    
+
+    func testSolve() {
+
+        let puzzle = "...............9..97.3......1..6.5....47.8..2.....2..6.31..4......8..167.87......"
+        let grid = solve(puzzle)
+        XCTAssertNotNil(grid)
+        display(grid!)
+        
+    }
+
     func testAll() {
         
-        let bundle = NSBundle(identifier: "proxpero.Pseudoku")!
-        let url = bundle.URLForResource("puzzles", withExtension: "txt")
-        let puzzles = try! String(contentsOfURL: url!).componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet())
+        let bundle = Bundle(identifier: "proxpero.Pseudoku")!
+        let url = bundle.url(forResource: "puzzles", withExtension: "txt")
+        let puzzles = try! String(contentsOf: url!).components(separatedBy: CharacterSet.newlines)
         
-        for (index, puzzle) in puzzles.enumerate() {
+        for (index, puzzle) in puzzles.enumerated() {
             let startTime = CFAbsoluteTimeGetCurrent()
             let grid = solve(puzzle)
             let endTime = CFAbsoluteTimeGetCurrent()
@@ -68,19 +77,19 @@ class PseudokuTests: XCTestCase {
     
     
     func testPerformanceExample_NoSearch() {
-        self.measureBlock {
+        self.measure {
             solve("003020600900305001001806400008102900700000008006708200002609500800203009005010300")
         }
     }
     
     func testPerformanceExample_Hard1() {
-        self.measureBlock {
+        self.measure {
             solve("8 5 . |. . 2 |4 . . 7 2 . |. . . |. . 9 . . 4 |. . . |. . . ------+------+------. . . |1 . 7 |. . 2 3 . 5 |. . . |9 . . . 4 . |. . . |. . . ------+------+------. . . |. 8 . |. 7 . . 1 7 |. . . |. . . . . . |. 3 6 |. 4 .")
         }
     }
     
     func testPerformanceExample_Hard2() {
-        self.measureBlock {
+        self.measure {
             solve(". . 5 |3 . . |. . . 8 . . |. . . |. 2 . . 7 . |. 1 . |5 . . ------+------+------4 . . |. . 5 |3 . . . 1 . |. 7 . |. . 6 . . 3 |2 . . |. 8 . ------+------+------. 6 . |5 . . |. . 9 . . 4 |. . . |. 3 . . . . |. . 9 |7 . .")
         }
     }

@@ -6,17 +6,27 @@
 //  Copyright © 2016 Todd Olsen. All rights reserved.
 //
 
+import Foundation
+
 public typealias Square  = String
 public typealias Squares = Dictionary<Square,Set<Set<Square>>>
 public typealias Digits  = Set<String>
 public typealias Digit   = String
-public typealias Grid   = Dictionary<Square, Digits>
+public typealias Grid    = Dictionary<Square, Digits>
 
 public let nums = "123456789".characters.map { String($0) }
 public let rows = "ABCDEFGHI".characters.map { String($0) }
 public let cols = nums
 
-public func cross(a: [String], _ b: [String]) -> [String] {
+public var puzzles: [String] = {
+    let url = Bundle.main.url(forResource: "puzzles", withExtension: "txt")
+    let puzzles = try! String(contentsOf: url!)
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .components(separatedBy: ", ")
+    return puzzles
+}()
+
+public func cross(_ a: [String], _ b: [String]) -> [String] {
     
     var result: [String] = []
     for i in a {
@@ -41,8 +51,8 @@ public let unitlist: [[String]] = {
         result.append(cross([r], cols))
     }
     
-    for r in 0.stride(to: 8, by: 3) {
-        for c in 0.stride(to: 8, by: 3) {
+    for r in stride(from: 0, to: 8, by: 3) {
+        for c in stride(from: 0, to: 8, by: 3) {
             result.append(cross(Array(rows[r..<r+3]), Array(cols[c..<c+3])))
         }
     }
@@ -60,8 +70,8 @@ public let units: Squares = {
         for c in cols { result.append(cross(rows, [c])) }
         for r in rows { result.append(cross([r], cols)) }
 
-        for r in 0.stride(to: 8, by: 3) {
-            for c in 0.stride(to: 8, by: 3) {
+        for r in stride(from: 0, to: 8, by: 3) {
+            for c in stride(from: 0, to: 8, by: 3) {
                 result.append(cross(Array(rows[r..<r+3]), Array(cols[c..<c+3])))
             }
         }
@@ -84,15 +94,15 @@ public let peers: Dictionary<Square, Set<Square>> = {
     for s in squares {
         var u = Set<Square>()
         for unit in units[s]! {
-            u.unionInPlace(unit)
+            u.formUnion(unit)
         }
-        dict[s] = u.subtract([s])
+        dict[s] = u.subtracting([s])
     }
     
     return dict
 }()
 
-public func solve(puzzle: String) -> Grid? {
+public func solve(_ puzzle: String) -> Grid? {
     
     // Initialize new grid.
     var grid: Grid? = {
@@ -107,7 +117,7 @@ public func solve(puzzle: String) -> Grid? {
     let refined = puzzle.characters.map { String($0) }.filter { nums.contains($0) || ["0", "."].contains($0) }
     
     // Make assignments given by the puzzle.
-    for (index, candidate) in refined.enumerate() {
+    for (index, candidate) in refined.enumerated() {
         if nums.contains(candidate) {
             grid = assign(candidate, toSquare: squares[index], inGrid: grid!)
         }
@@ -121,7 +131,7 @@ public func solve(puzzle: String) -> Grid? {
     return nil
 }
 
-public func search(searchStore: Grid?) -> Grid? {
+public func search(_ searchStore: Grid?) -> Grid? {
     
     guard let grid = searchStore else { return nil }
 
@@ -131,7 +141,7 @@ public func search(searchStore: Grid?) -> Grid? {
     }
     
     // Search least ambiguous squares first. (Ones whose sets contain fewest values)
-    let candidate = squares.map { (square:$0, digits:grid[$0]!) }.filter { $0.digits.count > 1 }.minElement({ (one, two) -> Bool in
+    let candidate = squares.map { (square:$0, digits:grid[$0]!) }.filter { $0.digits.count > 1 }.min(by: { (one, two) -> Bool in
         one.digits.count < two.digits.count
     })
     
@@ -149,12 +159,12 @@ public func search(searchStore: Grid?) -> Grid? {
     return nil
 }
 
-public func assign(digit: Digit, toSquare square: Square, inGrid incoming: Grid) -> Grid? {
+public func assign(_ digit: Digit, toSquare square: Square, inGrid incoming: Grid) -> Grid? {
     
     var grid = incoming
     
     // When a digit is assigned, remove that digit from the square's possiblities.
-    let others = grid[square]!.subtract([digit])
+    let others = grid[square]!.subtracting([digit])
     for other in others {
         if let newStore = eliminate(other, fromSquare: square, inStore: grid) {
             grid = newStore
@@ -166,7 +176,7 @@ public func assign(digit: Digit, toSquare square: Square, inGrid incoming: Grid)
     return grid
 }
 
-public func eliminate(digit: Digit, fromSquare square: Square, inStore incoming: Grid) -> Grid? {
+public func eliminate(_ digit: Digit, fromSquare square: Square, inStore incoming: Grid) -> Grid? {
     
     var grid = incoming
     
@@ -176,7 +186,7 @@ public func eliminate(digit: Digit, fromSquare square: Square, inStore incoming:
     }
     
     // Remove the digit from the squares possible values.
-    grid[square]!.subtractInPlace([digit])
+    grid[square]!.subtract([digit])
     
     // If there are no more possibilities, there is an inconsistency.
     if grid[square]!.count == 0 {
@@ -214,7 +224,7 @@ public func eliminate(digit: Digit, fromSquare square: Square, inStore incoming:
     return grid
 }
 
-public func display(solvedGrid: Grid) {
+public func display(_ solvedGrid: Grid) {
     
     let puzzle = squares.map { solvedGrid[$0]!.first! }
     
@@ -241,3 +251,4 @@ public func display(solvedGrid: Grid) {
     }
     print(result)
 }
+
