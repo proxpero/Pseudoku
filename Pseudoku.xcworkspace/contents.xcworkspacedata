@@ -5,6 +5,9 @@
       location = "group:Pseudoku.playground">
    </FileRef>
    <FileRef
-      location = "group:Pseudoku.xcodeproj">
+      location = "group:Engine/Engine.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:PseudokuApp/PseudokuApp.xcodeproj">
    </FileRef>
 </Workspace>

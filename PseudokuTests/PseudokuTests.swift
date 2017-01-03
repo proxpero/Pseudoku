@@ -36,7 +36,11 @@ class PseudokuTests: XCTestCase {
         
         XCTAssertEqual(units["C2"], set)
     }
-    
+
+    func testUnitList() {
+        print(unitlist)
+    }
+
     func testPeers() {
         
         for s in squares {
